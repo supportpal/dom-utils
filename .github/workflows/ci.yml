@@ -25,6 +25,8 @@ jobs:
           ini-values: error_reporting=E_ALL
           tools: composer:v2
           coverage: xdebug
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
