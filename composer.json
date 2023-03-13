@@ -1,6 +1,8 @@
 {
   "name": "supportpal/dom-utils",
   "description": "Utility functions for manipulating HTML documents.",
+  "type": "library",
+  "license": "MIT",
   "authors": [
     {
       "name": "Kieran Brahney",
