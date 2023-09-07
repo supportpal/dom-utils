@@ -3,6 +3,8 @@
 namespace SupportPal\DomUtils\Html\Filter;
 
 use SupportPal\DomUtils\Html\LibXml;
+
+use function preg_replace;
 use function str_replace;
 use function strpos;
 
@@ -41,8 +43,8 @@ class MicrosoftOffice extends Filter
     private function fixConditionalComments(string $html): string
     {
         if ($this->libXml->getDottedVersion() === '2.9.14') {
-            $html = preg_replace('/<!(\[if\s*[^\[\]]+\])>/', '<!--$1-->', $html);
-            $html = preg_replace('/<!(\[endif\])>/', '<!--$1-->', $html);
+            $html = preg_replace('/<!(\[if\s*[^\[\]]+\])>/', '<!--$1-->', $html) ?? $html;
+            $html = preg_replace('/<!(\[endif\])>/', '<!--$1-->', $html) ?? $html;
         }
 
         return $html;
