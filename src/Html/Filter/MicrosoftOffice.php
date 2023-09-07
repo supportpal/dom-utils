@@ -2,13 +2,19 @@
 
 namespace SupportPal\DomUtils\Html\Filter;
 
+use SupportPal\DomUtils\Html\LibXml;
 use function str_replace;
 use function strpos;
 
-use const LIBXML_DOTTED_VERSION;
-
 class MicrosoftOffice extends Filter
 {
+    private readonly LibXml $libXml;
+
+    public function __construct(?LibXml $libXml = null)
+    {
+        $this->libXml = $libXml === null ? new LibXml : $libXml;
+    }
+
     public function preProcess(string $text): string
     {
         if (! $this->isOfficeDocument($text)) {
@@ -34,7 +40,7 @@ class MicrosoftOffice extends Filter
 
     private function fixConditionalComments(string $html): string
     {
-        if (LIBXML_DOTTED_VERSION === '2.9.14') {
+        if ($this->libXml->getDottedVersion() === '2.9.14') {
             $html = preg_replace('/<!(\[if\s*[^\[\]]+\])>/', '<!--$1-->', $html);
             $html = preg_replace('/<!(\[endif\])>/', '<!--$1-->', $html);
         }
