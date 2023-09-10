@@ -5,6 +5,7 @@ namespace Test\Html\Filter;
 use PHPUnit\Framework\Attributes\DataProvider;
 use SupportPal\DomUtils\Html\Filter\MicrosoftOffice;
 use SupportPal\DomUtils\Html\Html;
+use SupportPal\DomUtils\Html\LibXml;
 use Test\TestCase;
 
 class MicrosoftOfficeTest extends TestCase
@@ -44,6 +45,44 @@ class MicrosoftOfficeTest extends TestCase
 </head>
 <body>Foo</body>
 </html>'
+        ];
+    }
+
+    #[DataProvider('mockedProvider')]
+    public function testHtmlMockedLibXmlVersion(string $string, string $expected): void
+    {
+        $mock = $this->createMock(LibXml::class);
+        $mock->expects($this->once())->method('getDottedVersion')->willReturn('2.9.14');
+
+        $filter = new MicrosoftOffice($mock);
+        $this->assertSame($expected, $filter->preProcess($string));
+    }
+
+    /**
+     * @return iterable<string[]>
+     */
+    public static function mockedProvider(): iterable
+    {
+        yield [
+            '<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40"><head>
+<![if !supportAnnotations]><style id="dynCom" type="text/css"><!-- --></style><![endif]>
+</head>
+</html>',
+            '<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40"><head>
+<!--[if !supportAnnotations]--><style id="dynCom" type="text/css"><!-- --></style><!--[endif]-->
+</head>
+</html>',
+        ];
+
+        yield [
+            '<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40"><head>
+<![if mso 9]><style id="dynCom" type="text/css"><!-- --></style><![endif]>
+</head>
+</html>',
+            '<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40"><head>
+<!--[if mso 9]--><style id="dynCom" type="text/css"><!-- --></style><!--[endif]-->
+</head>
+</html>',
         ];
     }
 }
