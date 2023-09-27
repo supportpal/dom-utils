@@ -5,7 +5,9 @@ namespace SupportPal\DomUtils\Text\Elements;
 use DOMText;
 use SupportPal\DomUtils\Text\Css\Content;
 
+use function in_array;
 use function str_replace;
+use function trim;
 
 class Text extends Element
 {

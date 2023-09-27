@@ -8,6 +8,8 @@ use SupportPal\DomUtils\Html\Html;
 use SupportPal\DomUtils\Text\TextParserConfig;
 use Test\TestCase;
 
+use function file_get_contents;
+
 class TextParserTest extends TestCase
 {
     #[DataProvider('toTextProvider')]
