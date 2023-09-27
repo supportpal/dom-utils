@@ -30,7 +30,8 @@ class Text extends Element
             $text = $this->processWhitespace($text);
         }
 
-        $text = trim(str_replace([$this->nbspCodes(), $this->zwnjCodes()], ' ', $text));
+        $text = $this->removeZwnjCodes($text);
+        $text = str_replace($this->nbspCodes(), ' ', trim($text));
 
         if (empty($text)) {
             return null;
