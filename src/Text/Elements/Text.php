@@ -24,8 +24,11 @@ class Text extends Element
             return null;
         }
 
-        $text = $this->processWhitespace($text);
-        $text = str_replace($this->nbspCodes(), ' ', $text);
+        if (! in_array($this->node->parentNode?->nodeName, ['pre'])) {
+            $text = $this->processWhitespace($text);
+        }
+
+        $text = trim(str_replace([$this->nbspCodes(), $this->zwnjCodes()], ' ', $text));
 
         if (empty($text)) {
             return null;

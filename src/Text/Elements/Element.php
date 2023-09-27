@@ -55,10 +55,15 @@ abstract class Element
         return strlen(trim($this->processWhitespace($text), "\n\r\t ")) === 0;
     }
 
+    protected function removeZwnjCodes(string $text): string
+    {
+        return str_replace($this->zwnjCodes(), '', $text);
+    }
+
     protected function processWhitespace(string $text): string
     {
         $text = rtrim($text);
-        $text = str_replace($this->zwnjCodes(), '', $text);
+        $text = $this->removeZwnjCodes($text);
         $text = (string) preg_replace("/[\\t\\n\\f\\r ]+/im", ' ', $text);
 
         return trim($text);

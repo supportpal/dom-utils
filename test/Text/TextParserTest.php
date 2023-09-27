@@ -38,6 +38,7 @@ class TextParserTest extends TestCase
         yield [10];
         yield [11];
         yield [12];
+        yield [13];
     }
 
     #[DataProvider('marginProvider')]

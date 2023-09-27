@@ -139,6 +139,7 @@ class ContentModel
         'th'  => TableCell::class,
         'img' => Image::class,
         'a'   => Anchor::class,
+        'pre' => Pre::class,
     ];
 
     private DOMNode $node;
