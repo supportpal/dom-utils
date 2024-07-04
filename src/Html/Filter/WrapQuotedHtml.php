@@ -7,10 +7,8 @@ use DOMXPath;
 use SupportPal\DomUtils\DOMDocument;
 use SupportPal\DomUtils\Html\Html;
 
-use function array_keys;
 use function count;
-use function explode;
-use function min;
+use function strcmp;
 
 class WrapQuotedHtml extends Filter
 {
@@ -28,9 +26,11 @@ class WrapQuotedHtml extends Filter
         // Gmail
         '//div[contains(@class,"gmail_extra")]',
         '//div[contains(@class,"gmail_quote")]',
+        '//div[contains(@class,"gmail_signature")]',
         // Yahoo
         '//div[contains(@class,"yahoo_quoted")]',
         // Outlook
+        '//div[contains(@id,"Signature")]',
         '//hr[contains(@id,"stopSpelling")]',
         //      Careful with this one... the units of measure can change e.g. 1.0pt, 1pt, 0cm, 0in - many variations!
         '//div[contains(@style,"border:none") and contains(@style,"border-top:solid #E1E1E1 1") and contains(@style,"padding:3")]',
@@ -102,7 +102,7 @@ class WrapQuotedHtml extends Filter
         // Find out which of the quoted nodes occurs first in the DOM.
         if (count($nodes) > 0) {
             $node = $this->getShortestPath($nodes);
-            if ($node->parentNode === null) {
+            if ($node?->parentNode === null) {
                 return $html;
             }
 
@@ -145,35 +145,25 @@ class WrapQuotedHtml extends Filter
     /**
      * Find the node with the shortest path.
      *
-     * @param  DOMNode[] $nodes
-     * @return DOMNode
+     * @param array<string|int, DOMNode> $comparison
      */
-    private function getShortestPath(array $nodes): DOMNode
+    private function getShortestPath(array $comparison): ?DOMNode
     {
-        $list = [];
+        $firstNode = null;
+        foreach ($comparison as $node) {
+            // Get the node position path
+            $nodePath = $node->getNodePath();
 
-        foreach ($nodes as $k => $node) {
-            $list[$k] = count(explode('/', $node->getNodePath() ?? ''));
-        }
-
-        $smallestKeys = array_keys($list, min($list));
-        if (count($smallestKeys) > 1) {
-            // Multiple nodes exist on the same level, so we need to find out which comes first...
-            $parent = $nodes[$smallestKeys[0]]->parentNode;
-            if ($parent === null) {
-                return $nodes[$smallestKeys[0]];
+            // Update if this node comes earlier in the document
+            if ($nodePath === null
+                || (($firstNodePath = $firstNode?->getNodePath()) !== null && strcmp($nodePath, $firstNodePath) >= 0)
+            ) {
+                continue;
             }
 
-            // Loop over the children of the parent until we find which node comes first.
-            foreach ($parent->childNodes as $childNode) {
-                foreach ($smallestKeys as $key) {
-                    if ($nodes[$key]->isSameNode($childNode)) {
-                        return $nodes[$key];
-                    }
-                }
-            }
+            $firstNode = $node;
         }
 
-        return $nodes[$smallestKeys[0]];
+        return $firstNode;
     }
 }
