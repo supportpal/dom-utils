@@ -50,6 +50,8 @@ class WrapQuotedHtmlTest extends TestCase
         yield ['<blockquote></blockquote>', '<blockquote></blockquote>'];
 
         // outlook
+        yield ['<div id="Signature">Foo</div>'];
+
         yield ['<hr id="stopSpelling">Foo'];
 
         yield ['<div id="divRplyFwdMsg">Foo</div>'];
@@ -65,6 +67,8 @@ class WrapQuotedHtmlTest extends TestCase
         yield ['<div class="gmail_extra">Foo</div>'];
 
         yield ['<div class="gmail_quote">Foo</div>'];
+
+        yield ['<div class="gmail_signature">Foo</div>'];
 
         // airmail
         yield ['<p class="airmail_on">Foo</p>'];
