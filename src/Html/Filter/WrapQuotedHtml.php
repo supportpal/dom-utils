@@ -102,7 +102,7 @@ class WrapQuotedHtml extends Filter
         // Find out which of the quoted nodes occurs first in the DOM.
         if (count($nodes) > 0) {
             $node = $this->getShortestPath($nodes);
-            if ($node->parentNode === null) {
+            if ($node?->parentNode === null) {
                 return $html;
             }
 
