@@ -49,6 +49,8 @@ class WrapQuotedHtml extends Filter
         '//div[contains(@id,"divRplyFwdMsg")]',
         // Applemail
         '//div[contains(@id,"AppleMailSignature")]',
+        // Mailbird
+        '//div[contains(@class,"mb_sig")]',
     ];
 
     public function preProcess(string $text): string
