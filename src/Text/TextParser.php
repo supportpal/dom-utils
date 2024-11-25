@@ -83,8 +83,8 @@ class TextParser
     }
 
     /**
-     * @param Content[] $parts
-     * @return Content[]
+     * @param array<Content> $parts
+     * @return array<Content>
      */
     private function convertNodeToText(DOMNode $node, TextParserConfig $config, array $parts = []): array
     {
@@ -106,7 +106,7 @@ class TextParser
     }
 
     /**
-     * @param Content[] $parts
+     * @param array<Content> $parts
      */
     private function pushIfNotNull(array &$parts, ?Content $part): void
     {
@@ -118,7 +118,7 @@ class TextParser
     }
 
     /**
-     * @param array<int, Content> $array
+     * @param array<Content> $array
      */
     private function last(array $array): ?Content
     {
