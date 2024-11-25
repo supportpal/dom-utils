@@ -17,7 +17,7 @@
     "tijsverkoyen/css-to-inline-styles": "^2.2"
   },
   "require-dev": {
-    "phpstan/phpstan": "1.10.6",
+    "phpstan/phpstan": "2.0.2",
     "supportpal/coding-standard": "^0.4.4",
     "phpunit/phpunit": "^10.0"
   },
