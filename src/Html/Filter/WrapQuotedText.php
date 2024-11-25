@@ -2,7 +2,6 @@
 
 namespace SupportPal\DomUtils\Html\Filter;
 
-use function is_string;
 use function preg_replace_callback;
 use function sprintf;
 
