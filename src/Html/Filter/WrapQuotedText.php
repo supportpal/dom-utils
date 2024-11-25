@@ -107,6 +107,6 @@ class WrapQuotedText extends Filter
 
         // Make sure the result was a non-empty string and that a replacement was actually performed (count as been
         // incremented), otherwise return what we were given.
-        return empty($result) || $count !== 1 || ! is_string($result) ? $text : sprintf('%s</div>', $result);
+        return empty($result) || $count !== 1 ? $text : sprintf('%s</div>', $result);
     }
 }

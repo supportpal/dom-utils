@@ -13,7 +13,8 @@ use function strlen;
 use function strtolower;
 
 /**
- * @phpstan-type TreeNode 'doctype'|'html'|'head'|'body'
+ * @phpstan-type Tree array{'doctype': string, 'html': TreeNodeValue, 'head': TreeNodeValue, 'body': TreeNodeValue}
+ * @phpstan-type TreeNode 'html'|'head'|'body'
  * @phpstan-type TreeNodeValue array{'start': string, 'end': string, 'content': array<int, string>}
  */
 class Tidy
@@ -21,7 +22,7 @@ class Tidy
     /**
      * Structure of a basic HTML document.
      *
-     * @var array{'doctype': string, 'html': TreeNodeValue, 'head': TreeNodeValue, 'body': TreeNodeValue}
+     * @var Tree
      */
     protected array $tree = [
         'doctype' => '',
@@ -148,7 +149,7 @@ class Tidy
     }
 
     /**
-     * Add a node to the the tree.
+     * Add a node to the tree.
      *
      * @phpstan-param TreeNode $key
      */
@@ -157,9 +158,9 @@ class Tidy
         $previousKey = $key;
 
         if (stripos($node, sprintf('<%s', $key)) !== false) {
-            $this->tree[$key]['start'] = $node; // @phpstan-ignore-line
+            $this->tree[$key]['start'] = $node;
         } elseif (stristr($node, sprintf('/%s>', $key))) {
-            $this->tree[$key]['end'] = $node;   // @phpstan-ignore-line
+            $this->tree[$key]['end'] = $node;
             $previousKey = null;
         } else {
             $this->tree[$key]['content'][] = $node;
