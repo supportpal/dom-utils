@@ -26,6 +26,19 @@ class Html
         $this->html = $html;
     }
 
+    /**
+     * @return DOMNodeList<DOMNode>
+     */
+    public static function query(DOMDocument $dom, string $expression): DOMNodeList
+    {
+        $xpath = new DOMXPath($dom->getInstance());
+
+        /** @var DOMNodeList<DOMNode> $list */
+        $list = $xpath->query($expression) ?: new DOMNodeList;
+
+        return $list;
+    }
+
     public function toText(?TextParserConfig $config = null): string
     {
         return (new TextParser($this->html))->toText($config);
