@@ -2,6 +2,8 @@
 
 namespace SupportPal\DomUtils\Html;
 
+use DOMNode;
+use DOMNodeList;
 use DOMXPath;
 use SupportPal\DomUtils\DOMDocument;
 use SupportPal\DomUtils\Html\Filter\Filter;
