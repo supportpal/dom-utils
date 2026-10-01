@@ -31,10 +31,8 @@ class Html
     /**
      * @return DOMNodeList<DOMNode>
      */
-    public static function query(DOMDocument $dom, string $expression): DOMNodeList
+    public static function query(DOMXPath $xpath, string $expression): DOMNodeList
     {
-        $xpath = new DOMXPath($dom->getInstance());
-
         /** @var DOMNodeList<DOMNode> $list */
         $list = $xpath->query($expression) ?: new DOMNodeList;
 
