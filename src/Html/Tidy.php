@@ -4,13 +4,15 @@ namespace SupportPal\DomUtils\Html;
 
 use function explode;
 use function ltrim;
-use function preg_match;
 use function preg_replace;
 use function sprintf;
 use function stripos;
 use function stristr;
 use function strlen;
+use function strpos;
+use function strspn;
 use function strtolower;
+use function substr;
 
 /**
  * @phpstan-type Tree array{'doctype': string, 'html': TreeNodeValue, 'head': TreeNodeValue, 'body': TreeNodeValue}
@@ -55,32 +57,33 @@ class Tidy
      */
     public function loadHtml(string $html): void
     {
+        $length = strlen($html);
         $i = 0;
-        while ($i < strlen($html)) {
-            if ($html[$i] === '<') {
-                // Found a tag, get chars until the end of the tag.
-                $tag = '';
-                while ($i < strlen($html) && $html[$i] !== '>') {
-                    $tag .= $html[$i++];
-                }
 
-                if ($i < strlen($html) && $html[$i] === '>') {
-                    $tag .= $html[$i++];
-
-                    // Copy any whitespace following the tag.
-                    // Anything added here needs to be added to the rtrim in the nodeName function.
-                    while ($i < strlen($html) && preg_match('/\s/', $html[$i])) {
-                        $tag .= $html[$i++];
-                    }
-                } else {
-                    // Missing closing tag?
-                    $tag .= '>';
-                }
-
-                $this->addToTree($tag);
-            } else {
-                $this->addToTree($html[$i++]);
+        while ($i < $length) {
+            $start = strpos($html, '<', $i);
+            if ($start === false) {
+                $this->addToTree(substr($html, $i));
+                break;
             }
+
+            if ($start > $i) {
+                $this->addToTree(substr($html, $i, $start - $i));
+            }
+
+            $end = strpos($html, '>', $start);
+            if ($end === false) {
+                // Missing closing tag?
+                $this->addToTree(substr($html, $start) . '>');
+                break;
+            }
+
+            // Copy any whitespace following the tag.
+            // Anything added here needs to be added to the rtrim in the nodeName function.
+            $end += 1 + strspn($html, " \t\n\r\x0B\f", $end + 1);
+
+            $this->addToTree(substr($html, $start, $end - $start));
+            $i = $end;
         }
     }
 
@@ -157,7 +160,9 @@ class Tidy
     {
         $previousKey = $key;
 
-        if (stripos($node, sprintf('<%s', $key)) !== false) {
+        if ($node[0] !== '<') {
+            $this->tree[$key]['content'][] = $node;
+        } elseif (stripos($node, sprintf('<%s', $key)) !== false) {
             $this->tree[$key]['start'] = $node;
         } elseif (stristr($node, sprintf('/%s>', $key))) {
             $this->tree[$key]['end'] = $node;
