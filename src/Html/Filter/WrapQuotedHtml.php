@@ -2,13 +2,17 @@
 
 namespace SupportPal\DomUtils\Html\Filter;
 
+use DOMElement;
 use DOMNode;
+use DOMText;
 use DOMXPath;
 use SupportPal\DomUtils\DOMDocument;
-use SupportPal\DomUtils\Html\Html;
 
 use function count;
+use function in_array;
 use function strcmp;
+use function strtolower;
+use function trim;
 
 class WrapQuotedHtml extends Filter
 {
@@ -79,22 +83,12 @@ class WrapQuotedHtml extends Filter
             }
 
             $node = $nodeList->item(0);
-            if ($node === null) {
+            if (! $node instanceof DOMNode) {
                 continue;
             }
 
-            // Check if the node and it's siblings are empty.
-            $doc = new DOMDocument;
-            $doc->appendChild($doc->importNode($node, true));
-
-            $nextSibling = $node->nextSibling;
-            while ($nextSibling) {
-                $doc->appendChild($doc->importNode($nextSibling, true));
-                $nextSibling = $nextSibling->nextSibling;
-            }
-
-            $savedHtml = $doc->saveHTML();
-            if (! $savedHtml || (new Html($savedHtml))->isEmpty() !== false) {
+            // Skip the node if it and its siblings contain no visible text.
+            if (! $this->hasVisibleText($node)) {
                 continue;
             }
 
@@ -142,6 +136,33 @@ class WrapQuotedHtml extends Filter
 
         // Something weird happened, don't modify the HTML.
         return $html;
+    }
+
+    /**
+     * Whether the node, or any of its following siblings, contain human readable text.
+     */
+    private function hasVisibleText(?DOMNode $node): bool
+    {
+        for (; $node !== null; $node = $node->nextSibling) {
+            if ($node instanceof DOMText) {
+                if (trim($node->nodeValue ?? '', " \n\r\t\0\xC2\xA0") !== '') {
+                    return true;
+                }
+
+                continue;
+            }
+
+            // We only care about human readable (visible) text.
+            if ($node instanceof DOMElement && in_array(strtolower($node->tagName), ['head', 'style', 'script'], true)) {
+                continue;
+            }
+
+            if ($node->hasChildNodes() && $this->hasVisibleText($node->firstChild)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

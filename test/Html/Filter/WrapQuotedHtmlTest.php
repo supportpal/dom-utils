@@ -49,6 +49,21 @@ class WrapQuotedHtmlTest extends TestCase
 
         yield ['<blockquote></blockquote>', '<blockquote></blockquote>'];
 
+        // Quotes without visible text are not wrapped.
+        yield ["<blockquote>&nbsp;\n</blockquote>", "<blockquote>\u{a0}</blockquote>"];
+
+        yield ["<blockquote> \n\t</blockquote><p></p>", "<blockquote> \t</blockquote><p></p>"];
+
+        yield ['<blockquote><img src="a.png"></blockquote>', '<blockquote><img src="a.png"></blockquote>'];
+
+        yield [
+            '<blockquote><style>p{}</style><script>1</script></blockquote>',
+            '<blockquote><style>p{}</style><script>1</script></blockquote>',
+        ];
+
+        // Visible text in a following sibling is enough.
+        yield ['<blockquote></blockquote><p>Foo</p>'];
+
         // outlook
         yield ['<div id="Signature">Foo</div>'];
 

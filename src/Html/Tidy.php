@@ -2,8 +2,13 @@
 
 namespace SupportPal\DomUtils\Html;
 
+use function array_keys;
+use function array_slice;
+use function count;
 use function explode;
 use function ltrim;
+use function preg_match;
+use function preg_match_all;
 use function preg_replace;
 use function sprintf;
 use function stripos;
@@ -13,6 +18,8 @@ use function strpos;
 use function strspn;
 use function strtolower;
 use function substr;
+
+use const PREG_OFFSET_CAPTURE;
 
 /**
  * @phpstan-type Tree array{'doctype': string, 'html': TreeNodeValue, 'head': TreeNodeValue, 'body': TreeNodeValue}
@@ -85,6 +92,42 @@ class Tidy
             $this->addToTree(substr($html, $start, $end - $start));
             $i = $end;
         }
+    }
+
+    /**
+     * Whether the document is already in the shape produced by saveHtml(): an optional doctype, then html, head and
+     * body elements in order with nothing but whitespace between them. Parsing such a document is a no-op.
+     */
+    public static function isWellFormed(string $html): bool
+    {
+        if (preg_match('/\A(?:<!doctype[^>]*>\s*)?<html(?:\s[^>]*)?>\s*<head(?:\s[^>]*)?>/i', $html) !== 1) {
+            return false;
+        }
+
+        if (preg_match('/<\/body>\s*<\/html>\s*\z/i', $html) !== 1) {
+            return false;
+        }
+
+        // Each root element must open and close exactly once, in order, with only whitespace between </head> and <body>.
+        $tags = ['<!doctype', '<html', '<head', '</head', '<body', '</body', '</html'];
+        $count = preg_match_all('/<(?:!doctype|\/?html|\/?head|\/?body)(?=[\s>])/i', $html, $matches, PREG_OFFSET_CAPTURE);
+        if ($count === false || $count > 7) {
+            return false;
+        }
+
+        $found = [];
+        foreach ($matches[0] as [$tag, $offset]) {
+            $found[strtolower($tag)] = $offset;
+        }
+
+        $expected = $found === [] ? [] : (isset($found['<!doctype']) ? $tags : array_slice($tags, 1));
+        if (count($found) !== count($expected) || array_keys($found) !== $expected) {
+            return false;
+        }
+
+        $headEnd = strpos($html, '>', $found['</head']);
+
+        return $headEnd !== false && strspn($html, " \t\n\r\x0B\f", $headEnd + 1) === $found['<body'] - $headEnd - 1;
     }
 
     /**

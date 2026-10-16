@@ -22,6 +22,10 @@ class MakeWellFormed extends Filter
 
     public function preProcess(string $text): string
     {
+        if (Tidy::isWellFormed($text)) {
+            return $text;
+        }
+
         $this->tidy->loadHtml($text);
 
         return $this->tidy->saveHtml();
